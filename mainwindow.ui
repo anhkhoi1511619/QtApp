@@ -92,7 +92,17 @@
        <item>
         <widget class="QLineEdit" name="payloadLineEdit">
          <property name="placeholderText">
-          <string>Enter payload to send...</string>
+          <string>Enter payload (HEX or text)...</string>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QCheckBox" name="hexModeCheckBox">
+         <property name="text">
+          <string>Hex mode</string>
+         </property>
+         <property name="checked">
+          <bool>true</bool>
          </property>
         </widget>
        </item>
@@ -102,7 +112,7 @@
           <string>Append newline</string>
          </property>
          <property name="checked">
-          <bool>true</bool>
+          <bool>false</bool>
          </property>
         </widget>
        </item>

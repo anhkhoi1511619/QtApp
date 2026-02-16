@@ -21,6 +21,9 @@ MainWindow::MainWindow(QWidget *parent)
     connect(ui->payloadLineEdit, &QLineEdit::returnPressed,
             this, &MainWindow::sendMessage);
 
+    connect(ui->hexModeCheckBox, &QCheckBox::toggled,
+            ui->appendNewlineCheckBox, &QWidget::setDisabled);
+
     connect(socket, &QTcpSocket::connected,
             this, &MainWindow::onConnected);
     connect(socket, &QTcpSocket::disconnected,
@@ -30,6 +33,7 @@ MainWindow::MainWindow(QWidget *parent)
     connect(socket, &QTcpSocket::errorOccurred,
             this, &MainWindow::onSocketError);
 
+    ui->appendNewlineCheckBox->setDisabled(ui->hexModeCheckBox->isChecked());
     updateConnectionUi(false);
     appendLog("TCP client simulator started. Ready to connect.");
 }
@@ -71,17 +75,19 @@ void MainWindow::sendMessage()
         return;
     }
 
-    QString payload = ui->payloadLineEdit->text();
+    const QString payload = ui->payloadLineEdit->text();
     if (payload.isEmpty()) {
         appendLog("Cannot send empty payload.");
         return;
     }
 
-    if (ui->appendNewlineCheckBox->isChecked()) {
-        payload.append('\n');
+    QByteArray data;
+    QString errorMessage;
+    if (!buildPayloadToSend(payload, data, errorMessage)) {
+        appendLog(errorMessage);
+        return;
     }
 
-    const QByteArray data = payload.toUtf8();
     const qint64 bytesWritten = socket->write(data);
 
     if (bytesWritten == -1) {
@@ -89,9 +95,9 @@ void MainWindow::sendMessage()
         return;
     }
 
-    appendLog(QString("Sent (%1 bytes): %2")
+    appendLog(QString("Sent (%1 bytes): HEX=%2")
                   .arg(bytesWritten)
-                  .arg(payload.trimmed()));
+                  .arg(QString::fromLatin1(data.toHex().toUpper())));
     ui->payloadLineEdit->clear();
 }
 
@@ -112,10 +118,11 @@ void MainWindow::onDisconnected()
 void MainWindow::onReadyRead()
 {
     const QByteArray data = socket->readAll();
-    const QString incoming = QString::fromUtf8(data);
-    appendLog(QString("Received (%1 bytes): %2")
+    const QString incomingUtf8 = QString::fromUtf8(data);
+    appendLog(QString("Received (%1 bytes): HEX=%2 | UTF8=%3")
                   .arg(data.size())
-                  .arg(incoming.trimmed()));
+                  .arg(QString::fromLatin1(data.toHex().toUpper()))
+                  .arg(incomingUtf8.trimmed()));
 }
 
 void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
@@ -123,6 +130,43 @@ void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
     Q_UNUSED(socketError);
     appendLog(QString("Socket error: %1").arg(socket->errorString()));
     updateConnectionUi(socket->state() == QAbstractSocket::ConnectedState);
+}
+
+bool MainWindow::buildPayloadToSend(const QString &input, QByteArray &output, QString &errorMessage) const
+{
+    if (ui->hexModeCheckBox->isChecked()) {
+        QString hex = input;
+        hex.remove(' ');
+        hex.remove('\t');
+        hex.remove('\r');
+        hex.remove('\n');
+
+        if (hex.isEmpty()) {
+            errorMessage = "Hex payload is empty after trimming spaces.";
+            return false;
+        }
+
+        if (hex.size() % 2 != 0) {
+            errorMessage = "Invalid hex payload: length must be even.";
+            return false;
+        }
+
+        for (const QChar &ch : hex) {
+            if (!ch.isDigit() && (ch.toLower() < 'a' || ch.toLower() > 'f')) {
+                errorMessage = QString("Invalid hex payload: unexpected character '%1'.").arg(ch);
+                return false;
+            }
+        }
+
+        output = QByteArray::fromHex(hex.toLatin1());
+        return true;
+    }
+
+    output = input.toUtf8();
+    if (ui->appendNewlineCheckBox->isChecked()) {
+        output.append('\n');
+    }
+    return true;
 }
 
 void MainWindow::appendLog(const QString &message)

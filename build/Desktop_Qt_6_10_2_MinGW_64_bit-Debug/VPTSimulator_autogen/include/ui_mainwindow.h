@@ -46,6 +46,7 @@ public:
     QGroupBox *payloadGroupBox;
     QHBoxLayout *horizontalLayout;
     QLineEdit *payloadLineEdit;
+    QCheckBox *hexModeCheckBox;
     QCheckBox *appendNewlineCheckBox;
     QPushButton *sendButton;
     QGroupBox *logGroupBox;
@@ -122,9 +123,15 @@ public:
 
         horizontalLayout->addWidget(payloadLineEdit);
 
+        hexModeCheckBox = new QCheckBox(payloadGroupBox);
+        hexModeCheckBox->setObjectName("hexModeCheckBox");
+        hexModeCheckBox->setChecked(true);
+
+        horizontalLayout->addWidget(hexModeCheckBox);
+
         appendNewlineCheckBox = new QCheckBox(payloadGroupBox);
         appendNewlineCheckBox->setObjectName("appendNewlineCheckBox");
-        appendNewlineCheckBox->setChecked(true);
+        appendNewlineCheckBox->setChecked(false);
 
         horizontalLayout->addWidget(appendNewlineCheckBox);
 
@@ -180,7 +187,8 @@ public:
         connectionStatusLabel->setText(QCoreApplication::translate("MainWindow", "Status", nullptr));
         connectionStatusValueLabel->setText(QCoreApplication::translate("MainWindow", "Disconnected", nullptr));
         payloadGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Payload", nullptr));
-        payloadLineEdit->setPlaceholderText(QCoreApplication::translate("MainWindow", "Enter payload to send...", nullptr));
+        payloadLineEdit->setPlaceholderText(QCoreApplication::translate("MainWindow", "Enter payload (HEX or text)...", nullptr));
+        hexModeCheckBox->setText(QCoreApplication::translate("MainWindow", "Hex mode", nullptr));
         appendNewlineCheckBox->setText(QCoreApplication::translate("MainWindow", "Append newline", nullptr));
         sendButton->setText(QCoreApplication::translate("MainWindow", "Send", nullptr));
         logGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Session Log", nullptr));

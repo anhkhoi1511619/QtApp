@@ -29,6 +29,7 @@ private slots:
     void onSocketError(QAbstractSocket::SocketError socketError);
 
 private:
+    bool buildPayloadToSend(const QString &input, QByteArray &output, QString &errorMessage) const;
     void appendLog(const QString &message);
     void updateConnectionUi(bool connected);
     Ui::MainWindow *ui;
