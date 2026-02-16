@@ -1,0 +1,19 @@
+# ninja log v6
+13	211	7929107749560252	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/CMakeFiles/cmake.verify_globs	21241b4d84af4be2
+215	1674	7929107764682106	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/VPTSimulator_autogen/mocs_compilation.cpp	fcbc77d6edb45e8d
+215	1674	7929107764682106	VPTSimulator_autogen/timestamp	fcbc77d6edb45e8d
+1704	4490	7929107766462165	CMakeFiles/VPTSimulator.dir/main.cpp.obj	5188cd16a7bffcfb
+215	1674	7929107764682106	VPTSimulator_autogen/mocs_compilation.cpp	fcbc77d6edb45e8d
+215	1674	7929107764682106	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/VPTSimulator_autogen/timestamp	fcbc77d6edb45e8d
+1689	4335	7929107766314742	CMakeFiles/VPTSimulator.dir/VPTSimulator_autogen/mocs_compilation.cpp.obj	129485c8a4f54dc9
+1717	4523	7929107766592109	CMakeFiles/VPTSimulator.dir/mainwindow.cpp.obj	925582eacfba2c2
+4523	4970	7929107794654835	VPTSimulator.exe	ca5e1a042850ca62
+14	263	7929112486850586	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/CMakeFiles/cmake.verify_globs	21241b4d84af4be2
+287	1727	7929112502206997	VPTSimulator_autogen/timestamp	fcbc77d6edb45e8d
+287	1727	7929112502206997	VPTSimulator_autogen/mocs_compilation.cpp	fcbc77d6edb45e8d
+287	1727	7929112502206997	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/VPTSimulator_autogen/timestamp	fcbc77d6edb45e8d
+287	1727	7929112502206997	C:/Users/khoi.nguyen/Projects/QtProjects/VPTSimulator/build/Desktop_Qt_6_10_2_MinGW_64_bit-Debug/VPTSimulator_autogen/mocs_compilation.cpp	fcbc77d6edb45e8d
+1730	4311	7929112504019473	CMakeFiles/VPTSimulator.dir/VPTSimulator_autogen/mocs_compilation.cpp.obj	4c0bbefd601e1c39
+1746	4456	7929112504082510	CMakeFiles/VPTSimulator.dir/main.cpp.obj	2f5994c4746c0ec2
+1760	4502	7929112504246607	CMakeFiles/VPTSimulator.dir/mainwindow.cpp.obj	c6c04bfbf6dcee6b
+4503	4914	7929112531750396	VPTSimulator.exe	997883378244bcdd
