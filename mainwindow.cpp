@@ -7,8 +7,12 @@ MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
     , ui(new Ui::MainWindow)
     , socket(new QTcpSocket(this))
+    , autoSendTimer(new QTimer(this))
+
 {
     ui->setupUi(this);
+
+    autoSendTimer->setInterval(1000);
 
     connect(ui->connectButton, &QPushButton::clicked,
             this, &MainWindow::connectToServer);
@@ -18,11 +22,18 @@ MainWindow::MainWindow(QWidget *parent)
             this, &MainWindow::sendMessage);
     connect(ui->clearLogButton, &QPushButton::clicked,
             ui->logTextEdit, &QTextEdit::clear);
+    connect(ui->clearReceivedHexButton, &QPushButton::clicked,
+            ui->receivedHexTextEdit, &QTextEdit::clear);
     connect(ui->payloadLineEdit, &QLineEdit::returnPressed,
             this, &MainWindow::sendMessage);
 
     connect(ui->hexModeCheckBox, &QCheckBox::toggled,
             ui->appendNewlineCheckBox, &QWidget::setDisabled);
+    connect(ui->autoSendCheckBox, &QCheckBox::toggled,
+            this, &MainWindow::onAutoSendToggled);
+
+    connect(autoSendTimer, &QTimer::timeout,
+            this, &MainWindow::sendMessage);
 
     connect(socket, &QTcpSocket::connected,
             this, &MainWindow::onConnected);
@@ -71,13 +82,18 @@ void MainWindow::disconnectFromServer()
 void MainWindow::sendMessage()
 {
     if (socket->state() != QAbstractSocket::ConnectedState) {
-        appendLog("Cannot send: client is not connected.");
+        updateAutoSendState();
+        if (sender() != autoSendTimer) {
+            appendLog("Cannot send: client is not connected.");
+        }
         return;
     }
 
     const QString payload = ui->payloadLineEdit->text();
     if (payload.isEmpty()) {
-        appendLog("Cannot send empty payload.");
+        if (sender() != autoSendTimer) {
+            appendLog("Cannot send empty payload.");
+        }
         return;
     }
 
@@ -98,12 +114,23 @@ void MainWindow::sendMessage()
     appendLog(QString("Sent (%1 bytes): HEX=%2")
                   .arg(bytesWritten)
                   .arg(QString::fromLatin1(data.toHex().toUpper())));
-    ui->payloadLineEdit->clear();
+}
+
+void MainWindow::onAutoSendToggled(bool enabled)
+{
+    if (enabled) {
+        appendLog("Auto-send enabled (1 second interval).");
+    } else {
+        appendLog("Auto-send disabled.");
+    }
+
+    updateAutoSendState();
 }
 
 void MainWindow::onConnected()
 {
     updateConnectionUi(true);
+    updateAutoSendState();
     appendLog(QString("Connected to %1:%2")
                   .arg(socket->peerAddress().toString())
                   .arg(socket->peerPort()));
@@ -112,6 +139,7 @@ void MainWindow::onConnected()
 void MainWindow::onDisconnected()
 {
     updateConnectionUi(false);
+    updateAutoSendState();
     appendLog("Disconnected from server.");
 }
 
@@ -119,9 +147,13 @@ void MainWindow::onReadyRead()
 {
     const QByteArray data = socket->readAll();
     const QString incomingUtf8 = QString::fromUtf8(data);
+    const QString hex = QString::fromLatin1(data.toHex().toUpper());
+
+    ui->receivedHexTextEdit->append(hex);
+
     appendLog(QString("Received (%1 bytes): HEX=%2 | UTF8=%3")
                   .arg(data.size())
-                  .arg(QString::fromLatin1(data.toHex().toUpper()))
+                  .arg(hex)
                   .arg(incomingUtf8.trimmed()));
 }
 
@@ -130,6 +162,7 @@ void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
     Q_UNUSED(socketError);
     appendLog(QString("Socket error: %1").arg(socket->errorString()));
     updateConnectionUi(socket->state() == QAbstractSocket::ConnectedState);
+    updateAutoSendState();
 }
 
 bool MainWindow::buildPayloadToSend(const QString &input, QByteArray &output, QString &errorMessage) const
@@ -183,4 +216,16 @@ void MainWindow::updateConnectionUi(bool connected)
     ui->hostLineEdit->setEnabled(!connected);
     ui->portSpinBox->setEnabled(!connected);
     ui->connectionStatusValueLabel->setText(connected ? "Connected" : "Disconnected");
+}
+
+void MainWindow::updateAutoSendState()
+{
+    const bool shouldRun = ui->autoSendCheckBox->isChecked()
+    && socket->state() == QAbstractSocket::ConnectedState;
+
+    if (shouldRun && !autoSendTimer->isActive()) {
+        autoSendTimer->start();
+    } else if (!shouldRun && autoSendTimer->isActive()) {
+        autoSendTimer->stop();
+    }
 }

@@ -48,7 +48,12 @@ public:
     QLineEdit *payloadLineEdit;
     QCheckBox *hexModeCheckBox;
     QCheckBox *appendNewlineCheckBox;
+    QCheckBox *autoSendCheckBox;
     QPushButton *sendButton;
+    QGroupBox *receivedHexGroupBox;
+    QVBoxLayout *verticalLayout_3;
+    QTextEdit *receivedHexTextEdit;
+    QPushButton *clearReceivedHexButton;
     QGroupBox *logGroupBox;
     QVBoxLayout *verticalLayout_2;
     QTextEdit *logTextEdit;
@@ -135,6 +140,12 @@ public:
 
         horizontalLayout->addWidget(appendNewlineCheckBox);
 
+        autoSendCheckBox = new QCheckBox(payloadGroupBox);
+        autoSendCheckBox->setObjectName("autoSendCheckBox");
+        autoSendCheckBox->setChecked(false);
+
+        horizontalLayout->addWidget(autoSendCheckBox);
+
         sendButton = new QPushButton(payloadGroupBox);
         sendButton->setObjectName("sendButton");
 
@@ -142,6 +153,24 @@ public:
 
 
         verticalLayout->addWidget(payloadGroupBox);
+
+        receivedHexGroupBox = new QGroupBox(centralwidget);
+        receivedHexGroupBox->setObjectName("receivedHexGroupBox");
+        verticalLayout_3 = new QVBoxLayout(receivedHexGroupBox);
+        verticalLayout_3->setObjectName("verticalLayout_3");
+        receivedHexTextEdit = new QTextEdit(receivedHexGroupBox);
+        receivedHexTextEdit->setObjectName("receivedHexTextEdit");
+        receivedHexTextEdit->setReadOnly(true);
+
+        verticalLayout_3->addWidget(receivedHexTextEdit);
+
+        clearReceivedHexButton = new QPushButton(receivedHexGroupBox);
+        clearReceivedHexButton->setObjectName("clearReceivedHexButton");
+
+        verticalLayout_3->addWidget(clearReceivedHexButton);
+
+
+        verticalLayout->addWidget(receivedHexGroupBox);
 
         logGroupBox = new QGroupBox(centralwidget);
         logGroupBox->setObjectName("logGroupBox");
@@ -190,7 +219,10 @@ public:
         payloadLineEdit->setPlaceholderText(QCoreApplication::translate("MainWindow", "Enter payload (HEX or text)...", nullptr));
         hexModeCheckBox->setText(QCoreApplication::translate("MainWindow", "Hex mode", nullptr));
         appendNewlineCheckBox->setText(QCoreApplication::translate("MainWindow", "Append newline", nullptr));
+        autoSendCheckBox->setText(QCoreApplication::translate("MainWindow", "Auto send (1s)", nullptr));
         sendButton->setText(QCoreApplication::translate("MainWindow", "Send", nullptr));
+        receivedHexGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Received HEX (from QTcpSocket)", nullptr));
+        clearReceivedHexButton->setText(QCoreApplication::translate("MainWindow", "Clear received HEX", nullptr));
         logGroupBox->setTitle(QCoreApplication::translate("MainWindow", "Session Log", nullptr));
         clearLogButton->setText(QCoreApplication::translate("MainWindow", "Clear log", nullptr));
     } // retranslateUi

@@ -13,7 +13,7 @@
   <property name="windowTitle">
    <string>TCP Client Simulator (Qt)</string>
   </property>
-  <widget class="QWidget" name="centralwidget">
+   <widget class="QWidget" name="centralwidget">
    <layout class="QVBoxLayout" name="verticalLayout">
     <item>
      <widget class="QGroupBox" name="connectionGroupBox">
@@ -117,9 +117,42 @@
         </widget>
        </item>
        <item>
+        <widget class="QCheckBox" name="autoSendCheckBox">
+         <property name="text">
+          <string>Auto send (1s)</string>
+         </property>
+         <property name="checked">
+          <bool>false</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
         <widget class="QPushButton" name="sendButton">
          <property name="text">
           <string>Send</string>
+         </property>
+        </widget>
+       </item>
+      </layout>
+     </widget>
+    </item>
+    <item>
+     <widget class="QGroupBox" name="receivedHexGroupBox">
+      <property name="title">
+       <string>Received HEX (from QTcpSocket)</string>
+      </property>
+      <layout class="QVBoxLayout" name="verticalLayout_3">
+       <item>
+        <widget class="QTextEdit" name="receivedHexTextEdit">
+         <property name="readOnly">
+          <bool>true</bool>
+         </property>
+        </widget>
+       </item>
+       <item>
+        <widget class="QPushButton" name="clearReceivedHexButton">
+         <property name="text">
+          <string>Clear received HEX</string>
          </property>
         </widget>
        </item>
