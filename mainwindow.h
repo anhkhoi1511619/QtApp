@@ -4,18 +4,11 @@
 #include <QMainWindow>
 #include <QTcpSocket>
 
-
 QT_BEGIN_NAMESPACE
 namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-
-
-class QLineEdit;
-class QTextEdit;
-class QPushButton;
-class QCheckBox;
 
 class MainWindow : public QMainWindow
 {
@@ -25,8 +18,20 @@ public:
     MainWindow(QWidget *parent = nullptr);
     ~MainWindow();
 
+private slots:
+    void connectToServer();
+    void disconnectFromServer();
+    void sendMessage();
+
+    void onConnected();
+    void onDisconnected();
+    void onReadyRead();
+    void onSocketError(QAbstractSocket::SocketError socketError);
 
 private:
+    void appendLog(const QString &message);
+    void updateConnectionUi(bool connected);
     Ui::MainWindow *ui;
+    QTcpSocket *socket;
 };
 #endif // MAINWINDOW_H
