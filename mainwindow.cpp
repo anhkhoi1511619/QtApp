@@ -90,12 +90,12 @@ void MainWindow::sendMessage()
     }
 
     const QString payload = ui->payloadLineEdit->text();
-    if (payload.isEmpty()) {
-        if (sender() != autoSendTimer) {
-            appendLog("Cannot send empty payload.");
-        }
-        return;
-    }
+    // if (payload.isEmpty()) {
+    //     if (sender() != autoSendTimer) {
+    //         appendLog("Cannot send empty payload.");
+    //     }
+    //     return;
+    // }
 
     QByteArray data;
     QString errorMessage;
@@ -151,10 +151,11 @@ void MainWindow::onReadyRead()
 
     ui->receivedHexTextEdit->append(hex);
 
-    appendLog(QString("Received (%1 bytes): HEX=%2 | UTF8=%3")
+    appendLog(QString("Received (%1 bytes): HEX=%2")
                   .arg(data.size())
-                  .arg(hex)
-                  .arg(incomingUtf8.trimmed()));
+                  .arg(hex))
+                  // .arg(incomingUtf8.trimmed()))
+        ;
 }
 
 void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
@@ -168,30 +169,43 @@ void MainWindow::onSocketError(QAbstractSocket::SocketError socketError)
 bool MainWindow::buildPayloadToSend(const QString &input, QByteArray &output, QString &errorMessage) const
 {
     if (ui->hexModeCheckBox->isChecked()) {
-        QString hex = input;
-        hex.remove(' ');
-        hex.remove('\t');
-        hex.remove('\r');
-        hex.remove('\n');
+        char staffNo[] = {0x01, 0x02, 0x03}; // Staff number in hexadecimal
+        char routeNo[] = {0x00, 0x10, 0x60, 0x20}; // Route number in BCD
+        char currentTime[] = {0x11, 0x21, 0x01}; // Current number in BCD
+        char stopStation[] = {0x00, 0x01}; // Stop Station in BCD
+        char RSRP[] = {0x10, 0x0A}; // "Hello" in ASCII
+        QByteArray combined;
+        char command = 0x00; // Command byte
+        char sequence = 0x0A; // Sequence length byte
+        char dataSize = 2
+                        + sizeof(staffNo)
+                        + sizeof(routeNo)
+                        + sizeof(currentTime)
+                        + sizeof(stopStation)
+                        + sizeof(RSRP);        // uint8_t dataSizeLo = ~dataSizeHi + 1; // Simple checksum (one's complement)
+        uint8_t dataSum = 0x00; // Checksum byte
 
-        if (hex.isEmpty()) {
-            errorMessage = "Hex payload is empty after trimming spaces.";
-            return false;
+        output.append(0x02); // Start byte
+        output.append((char)0x00);
+        output.append((char)dataSize); // Placeholder for checksum (simple one's complement)
+        output.append((char)(~dataSize + 1)); // Data size byte
+
+
+        combined.append(command);
+        combined.append(sequence);
+        combined.append(staffNo, sizeof(staffNo));
+        combined.append(routeNo, sizeof(routeNo));
+        combined.append(currentTime, sizeof(currentTime));
+        combined.append(stopStation, sizeof(stopStation));
+        combined.append(RSRP, sizeof(RSRP));
+
+        for (uint8_t byte : combined) {
+            output.append(byte);
+            dataSum += byte; // Calculate checksum
         }
 
-        if (hex.size() % 2 != 0) {
-            errorMessage = "Invalid hex payload: length must be even.";
-            return false;
-        }
-
-        for (const QChar &ch : hex) {
-            if (!ch.isDigit() && (ch.toLower() < 'a' || ch.toLower() > 'f')) {
-                errorMessage = QString("Invalid hex payload: unexpected character '%1'.").arg(ch);
-                return false;
-            }
-        }
-
-        output = QByteArray::fromHex(hex.toLatin1());
+        output.append(~dataSum + 1); // Append checksum byte
+        output.append(0x03); // End byte
         return true;
     }
 
